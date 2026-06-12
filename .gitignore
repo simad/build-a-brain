@@ -1,0 +1,12 @@
+# Node / TS
+node_modules/
+dist/
+*.tsbuildinfo
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Episode drafts held back from main until released (see RELEASING.md)
+drafts/

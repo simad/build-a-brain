@@ -97,6 +97,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
     if (size < 1) return;
     p.push();
     p.noStroke();
+    p.fill(0, 0, 0, 255); // ponytail: opaque fill — else the spotlight's faded-out fill leaks in and the emoji draws invisible
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(size);
     p.text(glyph, x, y);

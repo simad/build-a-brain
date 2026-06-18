@@ -18,10 +18,10 @@ You'll see Astro react to a little sequence of stimuli. Poke it five times — i
 A creature whose "brain" is a single lookup table — `stimulus → action` — and a one-line `perceive()` that reads from it. No state, no history, no choice.
 
 ```ts
-type Action = "approach" | "recoil" | "flinch" | "eat" | "ignore";
+type Action = "retreat" | "recoil" | "flinch" | "ingest" | "ignore";
 
 const REFLEXES: Record<string, Action> = {
-  light: "approach", heat: "recoil", poke: "flinch", food: "eat",
+  light: "retreat", heat: "recoil", poke: "flinch", food: "ingest",
 };
 
 class Astro {

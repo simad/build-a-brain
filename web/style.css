@@ -79,6 +79,16 @@ body {
 .stim:hover { filter: brightness(1.08); }
 .stim:active { transform: scale(0.95); }
 
+/* ---- wiring schematic ---- */
+.wiring { margin: 2px 0 14px; }
+.wire-svg { width: 100%; height: auto; display: block; }
+.wire-svg text { font-family: "VT323", ui-monospace, monospace; }
+.wire-svg .wt { fill: var(--text); }
+.wire-svg .ws { fill: var(--muted); }
+.wire-svg .wbox { fill: var(--surface); stroke: var(--muted); stroke-width: 1.5; }
+.wire-svg .wwire { stroke: #0891b2; stroke-width: 2.5; fill: none; }
+.wire-svg .wflow { stroke: #22d3ee; stroke-width: 2; fill: none; stroke-linecap: round; opacity: 0; }
+
 .trace {
   background: rgba(0, 0, 0, 0.06); border-radius: 10px; padding: 10px 12px;
   font-family: "VT323", ui-monospace, monospace; font-size: 16px; line-height: 1.35;

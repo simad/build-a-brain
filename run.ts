@@ -18,10 +18,10 @@ function describe(stimulus: string, action: Action): string {
     return `Astro doesn't know what '${stimulus}' is, so it does nothing.`;
   }
   const flavour: Record<Action, string> = {
-    approach: "drifts toward it",
+    retreat: "backs away from it",
     recoil: "recoils away",
     flinch: "flinches",
-    eat: "eats it",
+    ingest: "pumps it in",
     ignore: "ignores it",
   };
   return `Astro ${flavour[action]}.`;

@@ -1,5 +1,5 @@
 /**
- * The Episode 1 amoeba sketch — pure p5 rendering with NO DOM or theme imports,
+ * The Episode 1 creature sketch (C. elegans) — pure p5 rendering with NO DOM or theme imports,
  * so it can be unit-tested with a mock p5. The creature LOGIC lives in
  * `src/astro.ts`; this only animates whatever action it returns.
  */
@@ -14,10 +14,10 @@ export interface SketchEnv {
 
 /** Animation duration per action (ms). */
 const ANIM: Record<Action, number> = {
-  approach: 1070,
+  retreat: 1070,
   recoil: 730,
   flinch: 495,
-  eat: 1170,
+  ingest: 1170,
   ignore: 440,
 };
 
@@ -189,11 +189,11 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         const dur = ANIM[action];
         curE = Math.min(1, (p.millis() - start) / dur);
         curEnv = Math.sin(Math.PI * curE);
-        if (action === "approach") {
-          tg.offX = 72 * curEnv;
-          tg.offY = -8 * curEnv;
-          tg.lookX = 0.8 * curEnv;
-          tg.mouth = 0.5 * curEnv;
+        if (action === "retreat") {
+          // Light sits to the right; Astro eases away from it (calm, not a flinch).
+          tg.offX = -48 * curEnv;
+          tg.offY = -4 * curEnv;
+          tg.lookX = -0.6 * curEnv;
         } else if (action === "recoil") {
           tg.offX = -60 * curEnv;
           tg.squash = -0.3 * curEnv;
@@ -204,7 +204,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
           tg.squash = -0.26 * curEnv;
           tg.blink = curEnv;
           tg.offX = 4 * Math.sin(16 * Math.PI * curE) * curEnv;
-        } else if (action === "eat") {
+        } else if (action === "ingest") {
           tg.offX = 40 * curEnv;
           tg.offY = 4 * curEnv;
           tg.lookY = 0.4 * curEnv;
@@ -239,8 +239,8 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
       const cx = midX + st.offX + driftX;
       const cy = midY + st.offY + bob;
 
-      // Spotlight glow sits to the right; Astro chases it. Drawn behind Astro.
-      if (action === "approach") {
+      // Spotlight glow sits to the right; Astro eases away from it. Drawn behind Astro.
+      if (action === "retreat") {
         drawSpotlight(midX + 96, midY - 12, curEnv);
       }
 
@@ -292,7 +292,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
       if (action === "recoil") {
         const flick = 1 + 0.14 * Math.sin(t * 26);
         drawProp("🔥", midX + 90 + 3 * Math.sin(t * 18), midY + 2, 46 * curEnv * flick);
-      } else if (action === "eat") {
+      } else if (action === "ingest") {
         const bite = Math.max(0, 1 - curE * 0.9);
         const popIn = Math.min(1, curE * 6);
         drawProp("🧁", midX + 74, midY + 8, 42 * bite * popIn);

@@ -7,14 +7,14 @@
  * is even consulted.
  */
 
-export type Action = "approach" | "recoil" | "flinch" | "eat" | "ignore";
+export type Action = "retreat" | "recoil" | "flinch" | "ingest" | "ignore";
 
 /** The reflex table — the creature's whole wiring diagram for now. */
 export const REFLEXES: Record<string, Action> = {
-  light: "approach",
+  light: "retreat",
   heat: "recoil",
   poke: "flinch",
-  food: "eat",
+  food: "ingest",
 };
 
 /** Map a stimulus straight to an action. Same input, same output, always. */

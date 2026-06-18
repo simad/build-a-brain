@@ -11,14 +11,14 @@
  * nowhere for a memory to live.
  */
 
-type Action = "approach" | "recoil" | "flinch" | "eat" | "ignore";
+type Action = "retreat" | "recoil" | "flinch" | "ingest" | "ignore";
 
 // Astro's entire "nervous system" for now: a lookup table.
 const REFLEXES: Record<string, Action> = {
-  light: "approach",
+  light: "retreat",
   heat: "recoil",
   poke: "flinch",
-  food: "eat",
+  food: "ingest",
 };
 
 class Astro {

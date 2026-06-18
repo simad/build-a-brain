@@ -6,12 +6,14 @@
 
 import { EPISODES, isLive, type EpisodeMeta } from "./episodes.ts";
 import { mountReflexArc } from "./panels/reflex-arc.ts";
+import { mountWorkingMemory } from "./panels/working-memory.ts";
 
 /** A panel mounts itself into `host` and optionally returns a cleanup fn. */
 type PanelMount = (host: HTMLElement) => (() => void) | void;
 
 const PANELS: Record<string, PanelMount> = {
   "reflex-arc": mountReflexArc,
+  "working-memory": mountWorkingMemory,
 };
 
 /** How many locked episodes to show before collapsing the rest into a hint. */

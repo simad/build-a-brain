@@ -6,7 +6,7 @@
  * RENDERING lives in `reflex-sketch.ts` (pure, so it can be unit-tested).
  */
 
-import { Astro, type Action } from "../../src/astro.ts";
+import { Astro, type Action } from "../../episodes/01-reflex-arc/astro.ts";
 import { isDark } from "../theme.ts";
 import { reflexSketch } from "./reflex-sketch.ts";
 import { mountWiring } from "./wiring.ts";

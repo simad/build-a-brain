@@ -45,7 +45,7 @@ Type `light`, `heat`, `poke`, or `food` (or `help`, then `quit`).
 | # | Episode | What Astro gains | The neuroscience |
 |---|---------|------------------|------------------|
 | 1 | [The Reflex Arc](episodes/01-reflex-arc/) | Hardwired stimulus → response | Reflex arcs; *C. elegans* |
-| 2 | Working Memory | A tiny scratchpad | Prefrontal cortex; ~4-chunk limit |
+| 2 | [Working Memory](episodes/02-working-memory/) | A tiny scratchpad | Prefrontal cortex; ~4-chunk limit |
 | 3 | Long-Term Memory | A past it can carry | Hippocampus; recall as reconstruction |
 | 4 | Dreaming | Keeps the gist, prunes the noise | Sleep replay & consolidation |
 | 5 | Attention | Notices what stands out | Salience; dopamine as prediction error |

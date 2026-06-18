@@ -18,6 +18,7 @@ const ANIM: Record<Action, number> = {
   recoil: 730,
   flinch: 495,
   ingest: 1170,
+  flee: 900,
   ignore: 440,
 };
 
@@ -210,6 +211,12 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
           tg.lookY = 0.4 * curEnv;
           tg.mouth = Math.abs(Math.sin(curE * Math.PI * 3)) * curEnv;
           tg.squash = 0.1 * curEnv;
+        } else if (action === "flee") {
+          // Decisive bolt away — bigger and faster than a calm retreat.
+          tg.offX = -88 * curEnv;
+          tg.squash = -0.12 * curEnv;
+          tg.lookX = -0.85 * curEnv;
+          tg.blink = 0.3 * curEnv;
         } else if (action === "ignore") {
           tg.offX = 3 * Math.sin(5 * Math.PI * curE) * curEnv;
         }
@@ -296,6 +303,9 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         const bite = Math.max(0, 1 - curE * 0.9);
         const popIn = Math.min(1, curE * 6);
         drawProp("🧁", midX + 74, midY + 8, 42 * bite * popIn);
+      } else if (action === "flee") {
+        // A dust puff where Astro just bolted from.
+        drawProp("💨", midX + 56, midY + 8, 34 * curEnv);
       }
 
       // Retire a finished action only after everything has rendered this frame.

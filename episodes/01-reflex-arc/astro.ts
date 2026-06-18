@@ -11,7 +11,7 @@
  * nowhere for a memory to live.
  */
 
-type Action = "retreat" | "recoil" | "flinch" | "ingest" | "ignore";
+export type Action = "retreat" | "recoil" | "flinch" | "ingest" | "ignore";
 
 // Astro's entire "nervous system" for now: a lookup table.
 const REFLEXES: Record<string, Action> = {
@@ -21,10 +21,15 @@ const REFLEXES: Record<string, Action> = {
   food: "ingest",
 };
 
-class Astro {
+export class Astro {
   /** same input, same action. no memory, no thought. */
   perceive(stimulus: string): Action {
     return REFLEXES[stimulus] ?? "ignore";
+  }
+
+  /** The stimuli Astro can respond to. */
+  get senses(): string[] {
+    return Object.keys(REFLEXES);
   }
 }
 
@@ -39,4 +44,5 @@ function demo(): void {
   console.log("we break through in Episode 2 (working memory).");
 }
 
-demo();
+// Run the demo only on the command line (Node) — not when a web panel imports it.
+if (typeof process !== "undefined") demo();

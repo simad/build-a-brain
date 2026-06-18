@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "ep1": "tsx episodes/01-reflex-arc/astro.ts",
+    "ep2": "tsx episodes/02-working-memory/astro.ts",
     "astro": "tsx run.ts",
     "dev": "vite",
     "build": "vite build",

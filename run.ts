@@ -22,6 +22,7 @@ function describe(stimulus: string, action: Action): string {
     recoil: "recoils away",
     flinch: "flinches",
     ingest: "pumps it in",
+    flee: "bolts — it remembers this one",
     ignore: "ignores it",
   };
   return `Astro ${flavour[action]}.`;

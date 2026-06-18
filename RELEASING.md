@@ -1,62 +1,38 @@
 # Releasing — the every-two-weeks playbook
 
-*This file is for you, Silvia — it's not part of the lesson. It's the exact steps to publish one episode at a time.*
+*This file is for you, Silvia — it's not part of the lesson. It's how to publish one episode at a time.*
 
 ## The model
 
 - **Cadence:** one episode every **2 weeks**.
-- **`main`** is the public, released timeline — it only ever contains episodes that are live. This is what casual visitors see.
-- **Each episode lives on its own branch** (`episode/02-working-memory`, …). Branches get pushed to GitHub too — that's fine; almost nobody browses branches, and you'd rather keep it simple than run a private backup. (Just know that a determined, technical reader *could* read ahead on a branch. For this project, that's a non-issue.)
-- On release day you **merge the episode branch into `main`**, push, and cut a tagged **GitHub Release** with the episode's notes.
+- **Everything lives on `main`.** All eight episodes are built and committed on the same branch.
+- **Visibility is gated by date, not by branch.** Each episode has a `releaseAt` date in [`web/episodes.ts`](web/episodes.ts). The rail shows it as a live, selectable episode once that date has arrived; before then it's a `🔒 Unlocks <date>` teaser.
+- **Scheduling a post = editing a date.** Want Episode 3 to go live July 16? Set its `releaseAt` to `2026-07-16` and commit. The deployed site flips it on automatically when the date passes (the check runs in the browser on load).
 
-## One-time setup
+### Why not a branch per episode?
 
-```bash
-# from the build-a-brain folder
-git add .
-git commit -m "Episode 1: The Reflex Arc"
-git branch -M main
-git remote add origin https://github.com/<your-handle>/build-a-brain.git
-git push -u origin main
-```
+The repo is **open source** — all episode code is public regardless, and branches don't hide anything (anyone can browse them on GitHub). So per-episode branches gave zero embargo while making any cross-cutting change (a shared fix, a restyle) an 8-branch chore. One branch + a date gate kills that pain. The release schedule is about the *published reading experience*, not secrecy.
 
-Then on GitHub: **Releases → Draft a new release → tag `v1-reflex-arc`**, paste the episode's intro, publish. Share *that* link in the Substack post.
+> Branches are now **optional scratch space** — use one if an episode is messy mid-build, then merge it into `main` when it's done. They are not the release mechanism.
 
-## Starting the next episode (do this whenever you're ready to build it)
+## Building the next episode (do this whenever you're ready)
 
-```bash
-git checkout main
-git pull
-git checkout -b episode/02-working-memory     # branch off the latest main
-```
+Work directly on `main` (or a short-lived scratch branch you'll merge). Port from your vault draft in `~/Documents/Notes/.../Build-A-Brain/Episodes/`:
 
-Then build the episode in its own folder, porting from your vault draft:
+1. Create `episodes/NN-<id>/` with `astro.ts`, `README.md`, `NEUROSCIENCE.md` (copy the shape of Episode 1; keep the episode file self-contained so it runs on its own). Add its `epNN` script to `package.json`.
+2. Add the new faculty as `src/systems/<id>.ts` and wire it into the cumulative creature in `src/astro.ts`.
+3. Add the browser panel `web/panels/<id>.ts` (the interactive demo) and register it in the `PANELS` map in [`web/shell.ts`](web/shell.ts).
+4. Set that episode's `releaseAt` in [`web/episodes.ts`](web/episodes.ts) to its publish date.
+5. Bump the episode table in the top-level `README.md`.
+6. Commit and push to `main`.
 
-1. Create `episodes/02-working-memory/` with `astro.ts`, `README.md`, `NEUROSCIENCE.md` (copy the shape of Episode 1; keep the episode file self-contained so it runs on its own). Add its `ep2` script to `package.json`.
-2. Add the new faculty as `src/systems/working-memory.ts` and wire it into the cumulative creature in `src/astro.ts`.
-3. Add the browser panel: `web/panels/working-memory.ts` (the interactive demo), register it in `web/shell.ts`, and flip that episode's `status` to `"live"` in `web/episodes.ts`.
-4. Bump the episode table in the top-level `README.md`.
-5. Commit and push the branch:
-
-```bash
-git add .
-git commit -m "Episode 2: Working Memory"
-git push -u origin episode/02-working-memory
-```
-
-The branch is now safely on GitHub (backup), but `main` is unchanged — the public's default view still shows only released episodes.
+Pushing to `main` triggers the GitHub Pages build automatically — but a future-dated episode still shows as locked until its date, so it's safe to ship early.
 
 ## Release day (every 2 weeks)
 
-```bash
-git checkout main
-git merge episode/02-working-memory     # bring the new episode onto main
-git push origin main
-git tag v2-working-memory
-git push origin v2-working-memory
-```
+If you set `releaseAt` ahead of time, **there's nothing to do** — the episode unlocks itself on its date. Optionally cut a tagged GitHub Release (`vNN-<id>`) for the changelog, then publish the Substack post that links to it.
 
-Then draft the GitHub Release for that tag, and publish the Substack post that points to it. Done. Start the next branch.
+> Note: a returning visitor's browser re-evaluates the date on load, so the unlock is automatic for anyone who loads the site on/after the date. No redeploy is required (the code is already shipped); a redeploy is only needed if you *change* an already-shipped episode.
 
 ## Checklist before each release
 
@@ -66,5 +42,6 @@ Then draft the GitHub Release for that tag, and publish the Substack post that p
 - [ ] Episode `README.md` has the run command + the neuroscience + a "your turn"
 - [ ] `NEUROSCIENCE.md` has the sources (verified)
 - [ ] Top-level README episode table updated
-- [ ] The browser panel works (`web/panels/NN.ts`, registered, `status: "live"`)
+- [ ] The browser panel works (`web/panels/NN.ts`, registered in `PANELS`)
+- [ ] `releaseAt` set to the intended publish date
 - [ ] The creature itself stays dependency-free (dev-only tooling like tsx/vite is fine)

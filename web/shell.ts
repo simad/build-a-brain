@@ -4,7 +4,7 @@
  * looked up by id, so each released episode just registers one here.
  */
 
-import { EPISODES, type EpisodeMeta } from "./episodes.ts";
+import { EPISODES, isLive, type EpisodeMeta } from "./episodes.ts";
 import { mountReflexArc } from "./panels/reflex-arc.ts";
 
 /** A panel mounts itself into `host` and optionally returns a cleanup fn. */
@@ -34,7 +34,7 @@ export function mountShell(root: HTMLElement): void {
     );
     panel.innerHTML = "";
     const mount = PANELS[ep.id];
-    if (ep.status === "live" && mount) {
+    if (isLive(ep) && mount) {
       cleanup = mount(panel);
     } else {
       renderTeaser(panel, ep);
@@ -46,7 +46,7 @@ export function mountShell(root: HTMLElement): void {
   const shown: EpisodeMeta[] = [];
   let lockedShown = 0;
   for (const ep of EPISODES) {
-    if (ep.status === "live") shown.push(ep);
+    if (isLive(ep)) shown.push(ep);
     else if (lockedShown < LOCKED_PREVIEW) {
       shown.push(ep);
       lockedShown++;
@@ -54,7 +54,7 @@ export function mountShell(root: HTMLElement): void {
   }
 
   shown.forEach((ep, i) => {
-    const locked = ep.status !== "live";
+    const locked = !isLive(ep);
     const item = document.createElement("button");
     item.className = "ep-item" + (locked ? " locked" : "");
     item.setAttribute("data-id", ep.id);
@@ -73,16 +73,17 @@ export function mountShell(root: HTMLElement): void {
   hint.textContent = remaining > 0 ? `+${remaining} more, then season 2` : "then season 2";
   rail.appendChild(hint);
 
-  const firstLive = EPISODES.find((e) => e.status === "live") ?? EPISODES[0]!;
+  const firstLive = EPISODES.find((e) => isLive(e)) ?? EPISODES[0]!;
   select(firstLive);
 }
 
 function renderTeaser(panel: HTMLElement, ep: EpisodeMeta): void {
+  const when = new Date(ep.releaseAt).toLocaleDateString(undefined, { month: "long", day: "numeric" });
   panel.innerHTML =
     `<div class="teaser">` +
     `<div class="kicker">Episode ${ep.n}</div>` +
     `<h2>${ep.title}</h2>` +
     `<p class="muted">${ep.gains}</p>` +
-    `<div class="locked-pill">🔒 Coming soon</div>` +
+    `<div class="locked-pill">🔒 Unlocks ${when}</div>` +
     `</div>`;
 }

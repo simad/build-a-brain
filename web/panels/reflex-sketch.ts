@@ -348,7 +348,11 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         const popIn = Math.min(1, curE * 6);
         drawProp("🧁", midX + 74, midY + 8, 42 * bite * popIn);
       } else if (action === "flee") {
-        // A dust puff at the spot it bolted from (fades fast as it leaves).
+        // flee is the repeated-heat reaction: keep the fire it's running from
+        // visible on the right (held through the bolt), with a puff at the start.
+        const flick = 1 + 0.14 * Math.sin(t * 26);
+        const fire = Math.min(Math.min(1, curE * 8), Math.min(1, (1 - curE) * 5));
+        drawProp("🔥", midX + 90 + 3 * Math.sin(t * 18), midY + 2, 46 * fire * flick);
         drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
       } else if (action === "hide") {
         // An umbrella held up between Astro and the glare — pops up and stays

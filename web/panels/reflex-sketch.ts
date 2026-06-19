@@ -85,6 +85,10 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
   let nextBlink = 2.5 + Math.random() * 3;
   let loggedErr = false;
 
+  // Cupcakes Astro is too full to eat, piling chaotically on the floor (fade out).
+  const floorCupcakes: { x: number; y: number; born: number; rot: number }[] = [];
+  const CUPCAKE_LIFE = 3200;
+
   p.setup = () => {
     p.createCanvas(W(), H());
     p.frameRate(60);
@@ -93,18 +97,31 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
   p.trigger = (a: Action) => {
     action = a;
     start = p.millis();
+    // Sated = too full to eat: the thrown cupcake lands on the floor and piles up.
+    if (a === "sated" && floorCupcakes.length < 16) {
+      const w = W();
+      const h = H();
+      floorCupcakes.push({
+        x: w / 2 + 36 + Math.random() * (w / 2 - 56),
+        y: h - 20 - Math.random() * 10,
+        born: p.millis(),
+        rot: (Math.random() - 0.5) * 0.7,
+      });
+    }
   };
 
   // Draw an emoji prop, fading via SIZE (no raw drawingContext / globalAlpha,
   // which could wedge canvas state). p5's push/pop keeps style balanced.
-  const drawProp = (glyph: string, x: number, y: number, size: number): void => {
+  const drawProp = (glyph: string, x: number, y: number, size: number, rot = 0): void => {
     if (size < 1) return;
     p.push();
     p.noStroke();
     p.fill(0, 0, 0, 255); // ponytail: opaque fill — else the spotlight's faded-out fill leaks in and the emoji draws invisible
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(size);
-    p.text(glyph, x, y);
+    p.translate(x, y);
+    if (rot) p.rotate(rot);
+    p.text(glyph, 0, 0);
     p.pop();
   };
 
@@ -226,16 +243,12 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
               : rightOff + (W2 - rightOff) * ((curE - 0.5) / 0.5); // off the right → centre
           tg.lookX = -0.6 * curEnv;
         } else if (action === "hide") {
-          // Ducks down and flattens, eyes shut — going into hiding.
-          tg.offY = 22 * curEnv;
-          tg.squash = -0.34 * curEnv;
-          tg.blink = 0.82 * curEnv;
-          tg.lookY = 0.3 * curEnv;
+          // "This light again?" — edges away and puts up an umbrella against it.
+          tg.offX = -16 * curEnv;
+          tg.lookX = 0.45 * curEnv;
         } else if (action === "sated") {
-          // Content and full — rounds up with a happy, half-closed look.
-          tg.squash = 0.14 * curEnv;
-          tg.blink = 0.5 * curEnv;
-          tg.offY = -3 * curEnv;
+          // Too full to eat — leans away from the cupcake it won't touch.
+          tg.offX = -6 * curEnv;
         } else if (action === "habituate") {
           // Unbothered — barely a twitch, half-lidded "yeah, yeah".
           tg.offX = 3 * Math.sin(6 * Math.PI * curE) * curEnv;
@@ -243,6 +256,14 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         } else if (action === "ignore") {
           tg.offX = 3 * Math.sin(5 * Math.PI * curE) * curEnv;
         }
+      }
+
+      // While cupcakes pile on the floor, Astro keeps fretting about the mess.
+      if (floorCupcakes.length > 0) {
+        const worry = Math.min(1, floorCupcakes.length / 4);
+        tg.distress = Math.max(tg.distress, worry);
+        tg.lookX = 0.5 * worry;
+        tg.lookY = 0.28 * worry;
       }
 
       // Idle blinking.
@@ -269,8 +290,8 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
       const cx = fleeX !== null ? fleeX : midX + st.offX + driftX;
       const cy = midY + st.offY + bob;
 
-      // Spotlight glow sits to the right; Astro eases away from it. Drawn behind Astro.
-      if (action === "retreat") {
+      // Spotlight glow sits to the right (retreat eases away; hide shields against it).
+      if (action === "retreat" || action === "hide") {
         drawSpotlight(midX + 96, midY - 12, curEnv);
       }
 
@@ -329,6 +350,24 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
       } else if (action === "flee") {
         // A dust puff at the spot it bolted from (fades fast as it leaves).
         drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
+      } else if (action === "hide") {
+        // An umbrella held up between Astro and the glare on the right.
+        drawProp("☂️", midX + 46, midY - 10, 44 * curEnv, 0.35);
+      }
+
+      // Floor cupcakes pile up on the right and fade after a few seconds.
+      const now = p.millis();
+      for (let i = floorCupcakes.length - 1; i >= 0; i--) {
+        const c = floorCupcakes[i]!;
+        const age = now - c.born;
+        if (age > CUPCAKE_LIFE) {
+          floorCupcakes.splice(i, 1);
+          continue;
+        }
+        const dropIn = Math.min(1, age / 260);
+        const drop = (1 - dropIn) * (1 - dropIn); // ease-out fall onto the floor
+        const fade = age > CUPCAKE_LIFE - 600 ? Math.max(0, (CUPCAKE_LIFE - age) / 600) : 1;
+        drawProp("🧁", c.x, c.y - 36 * drop, 28 * fade, c.rot);
       }
 
       // Retire a finished action only after everything has rendered this frame.

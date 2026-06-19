@@ -19,7 +19,7 @@ const ANIM: Record<Action, number> = {
   flinch: 495,
   ingest: 1170,
   flee: 1500, // long enough to run off one side and reappear on the other
-  hide: 950,
+  hide: 1900,
   sated: 1050,
   habituate: 560,
   ignore: 440,
@@ -351,8 +351,10 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         // A dust puff at the spot it bolted from (fades fast as it leaves).
         drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
       } else if (action === "hide") {
-        // An umbrella held up between Astro and the glare on the right.
-        drawProp("☂️", midX + 50, midY - 14, 64 * curEnv, 0.35);
+        // An umbrella held up between Astro and the glare — pops up and stays
+        // out for most of the action (only fading right at the end).
+        const umb = Math.min(Math.min(1, curE * 8), Math.min(1, (1 - curE) * 6));
+        drawProp("☂️", midX + 50, midY - 14, 64 * umb, 0.35);
       }
 
       // Floor cupcakes pile up on the right and fade after a few seconds.

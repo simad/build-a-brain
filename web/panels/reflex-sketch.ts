@@ -18,7 +18,10 @@ const ANIM: Record<Action, number> = {
   recoil: 730,
   flinch: 495,
   ingest: 1170,
-  flee: 900,
+  flee: 1500, // long enough to run off one side and reappear on the other
+  hide: 950,
+  sated: 1050,
+  habituate: 560,
   ignore: 440,
 };
 
@@ -186,6 +189,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
       };
       let curE = 0;
       let curEnv = 0;
+      let fleeX: number | null = null; // flee bypasses the spring to wrap off-screen
       if (action) {
         const dur = ANIM[action];
         curE = Math.min(1, (p.millis() - start) / dur);
@@ -212,11 +216,30 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
           tg.mouth = Math.abs(Math.sin(curE * Math.PI * 3)) * curEnv;
           tg.squash = 0.1 * curEnv;
         } else if (action === "flee") {
-          // Decisive bolt away — bigger and faster than a calm retreat.
-          tg.offX = -88 * curEnv;
-          tg.squash = -0.12 * curEnv;
-          tg.lookX = -0.85 * curEnv;
-          tg.blink = 0.3 * curEnv;
+          // Bolt clean off one side and reappear on the other — "I'm out of here."
+          const W2 = W() / 2;
+          const leftOff = -(R + 36);
+          const rightOff = W() + R + 36;
+          fleeX =
+            curE < 0.5
+              ? W2 + (leftOff - W2) * (curE / 0.5) // centre → off the left edge
+              : rightOff + (W2 - rightOff) * ((curE - 0.5) / 0.5); // off the right → centre
+          tg.lookX = -0.6 * curEnv;
+        } else if (action === "hide") {
+          // Ducks down and flattens, eyes shut — going into hiding.
+          tg.offY = 22 * curEnv;
+          tg.squash = -0.34 * curEnv;
+          tg.blink = 0.82 * curEnv;
+          tg.lookY = 0.3 * curEnv;
+        } else if (action === "sated") {
+          // Content and full — rounds up with a happy, half-closed look.
+          tg.squash = 0.14 * curEnv;
+          tg.blink = 0.5 * curEnv;
+          tg.offY = -3 * curEnv;
+        } else if (action === "habituate") {
+          // Unbothered — barely a twitch, half-lidded "yeah, yeah".
+          tg.offX = 3 * Math.sin(6 * Math.PI * curE) * curEnv;
+          tg.blink = 0.45 * curEnv;
         } else if (action === "ignore") {
           tg.offX = 3 * Math.sin(5 * Math.PI * curE) * curEnv;
         }
@@ -243,7 +266,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
 
       const midX = W() / 2;
       const midY = H() / 2;
-      const cx = midX + st.offX + driftX;
+      const cx = fleeX !== null ? fleeX : midX + st.offX + driftX;
       const cy = midY + st.offY + bob;
 
       // Spotlight glow sits to the right; Astro eases away from it. Drawn behind Astro.
@@ -304,8 +327,8 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         const popIn = Math.min(1, curE * 6);
         drawProp("🧁", midX + 74, midY + 8, 42 * bite * popIn);
       } else if (action === "flee") {
-        // A dust puff where Astro just bolted from.
-        drawProp("💨", midX + 56, midY + 8, 34 * curEnv);
+        // A dust puff at the spot it bolted from (fades fast as it leaves).
+        drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
       }
 
       // Retire a finished action only after everything has rendered this frame.

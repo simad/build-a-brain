@@ -1,6 +1,6 @@
 # Episode 2 — Working Memory
 
-> Astro gets the brain's tiny, expensive desk: a buffer that holds the last ~4 things it sensed, then forgets. For the first time the recent past can change the present — a second dose of heat means "flee", not "flinch at it fresh again."
+> Astro gets the brain's tiny, expensive desk: a buffer that holds the last ~4 things it sensed, then forgets. For the first time the recent past can change the present — repeat a sense and it reacts differently: it flees heat it's already felt, hides from a light that keeps coming, ignores food it just ate, and stops flinching at a harmless, repeated poke.
 
 ## Run it
 
@@ -28,15 +28,19 @@ class Astro {
   perceive(stimulus: string): Action {
     this.wm.push(stimulus);
     while (this.wm.length > 4) this.wm.shift();   // oldest falls out the back
-    if (stimulus === "heat" && this.wm.filter((x) => x === "heat").length > 1) {
-      return "flee";                   // "this again? I'm out."
-    }
+
+    // the recent past can now override the raw reflex
+    const n = this.wm.filter((x) => x === stimulus).length;
+    if (stimulus === "heat"  && n >= 2) return "flee";      // remembered danger
+    if (stimulus === "light" && n >= 2) return "hide";      // persistent glare
+    if (stimulus === "food"  && n >= 2) return "sated";     // just ate
+    if (stimulus === "poke"  && n >= 3) return "habituate"; // harmless & repeated
     return REFLEXES[stimulus] ?? "ignore";
   }
 }
 ```
 
-The whole capacity limit is one number: `maxlen = 4`. There's still no long-term store — close the program and the desk is wiped, exactly like your own working memory after a night's sleep.
+The whole capacity limit is one number: `maxlen = 4`. Notice that **every** new ability comes from the same buffer — the creature can suddenly "tell this happened recently." There's still no long-term store, though: close the program and the desk is wiped, exactly like your own working memory after a night's sleep.
 
 ## The neuroscience (the actual good part)
 

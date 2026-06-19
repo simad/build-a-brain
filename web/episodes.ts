@@ -17,12 +17,12 @@ export interface EpisodeMeta {
 }
 
 /**
- * Released once its date has arrived — drives the rail's live/locked split.
- * In dev (`npm run dev`) everything is unlocked so you can build any episode
- * locally; the deployed site still gates strictly by date.
+ * Released once its date has arrived — drives the lock icons + teasers, in both
+ * dev and prod, so the rail always shows what's locked. (Dev still lets you
+ * *open* a locked-but-built episode for development; see web/shell.ts.)
  */
-export function isLive(ep: EpisodeMeta): boolean {
-  return import.meta.env.DEV || new Date(ep.releaseAt) <= new Date();
+export function isReleased(ep: EpisodeMeta): boolean {
+  return new Date(ep.releaseAt) <= new Date();
 }
 
 // Cadence: one episode every 2 weeks. Edit these dates to reschedule — the date

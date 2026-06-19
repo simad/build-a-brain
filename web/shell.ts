@@ -4,7 +4,7 @@
  * looked up by id, so each released episode just registers one here.
  */
 
-import { EPISODES, isLive, type EpisodeMeta } from "./episodes.ts";
+import { EPISODES, isReleased, type EpisodeMeta } from "./episodes.ts";
 import { mountReflexArc } from "./panels/reflex-arc.ts";
 import { mountWorkingMemory } from "./panels/working-memory.ts";
 
@@ -18,6 +18,10 @@ const PANELS: Record<string, PanelMount> = {
 
 /** How many locked episodes to show before collapsing the rest into a hint. */
 const LOCKED_PREVIEW = 2;
+
+// In dev, show every episode and let you open locked-but-built ones (for
+// building locally). The lock icons still follow the release date in both modes.
+const DEV = import.meta.env.DEV;
 
 export function mountShell(root: HTMLElement): void {
   root.innerHTML = `<nav class="rail"></nav><main class="panel"></main>`;
@@ -36,27 +40,32 @@ export function mountShell(root: HTMLElement): void {
     );
     panel.innerHTML = "";
     const mount = PANELS[ep.id];
-    if (isLive(ep) && mount) {
+    if (mount && (isReleased(ep) || DEV)) {
       cleanup = mount(panel);
     } else {
       renderTeaser(panel, ep);
     }
   };
 
-  // Rail: every live episode, then up to LOCKED_PREVIEW locked ones, then a hint.
+  // Rail: released episodes, then up to LOCKED_PREVIEW locked ones, then a hint.
+  // In dev, show every episode so any built one is reachable.
   rail.innerHTML = `<div class="rail-title">Episodes</div>`;
   const shown: EpisodeMeta[] = [];
-  let lockedShown = 0;
-  for (const ep of EPISODES) {
-    if (isLive(ep)) shown.push(ep);
-    else if (lockedShown < LOCKED_PREVIEW) {
-      shown.push(ep);
-      lockedShown++;
+  if (DEV) {
+    shown.push(...EPISODES);
+  } else {
+    let lockedShown = 0;
+    for (const ep of EPISODES) {
+      if (isReleased(ep)) shown.push(ep);
+      else if (lockedShown < LOCKED_PREVIEW) {
+        shown.push(ep);
+        lockedShown++;
+      }
     }
   }
 
   shown.forEach((ep, i) => {
-    const locked = !isLive(ep);
+    const locked = !isReleased(ep);
     const item = document.createElement("button");
     item.className = "ep-item" + (locked ? " locked" : "");
     item.setAttribute("data-id", ep.id);
@@ -75,7 +84,7 @@ export function mountShell(root: HTMLElement): void {
   hint.textContent = remaining > 0 ? `+${remaining} more, then season 2` : "then season 2";
   rail.appendChild(hint);
 
-  const firstLive = EPISODES.find((e) => isLive(e)) ?? EPISODES[0]!;
+  const firstLive = EPISODES.find((e) => isReleased(e)) ?? EPISODES[0]!;
   select(firstLive);
 }
 

@@ -352,7 +352,7 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
       } else if (action === "hide") {
         // An umbrella held up between Astro and the glare on the right.
-        drawProp("☂️", midX + 46, midY - 10, 44 * curEnv, 0.35);
+        drawProp("☂️", midX + 50, midY - 14, 64 * curEnv, 0.35);
       }
 
       // Floor cupcakes pile up on the right and fade after a few seconds.

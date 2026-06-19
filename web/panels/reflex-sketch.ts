@@ -351,7 +351,8 @@ export function reflexSketch(p: any, envv: SketchEnv): void {
         // flee is the repeated-heat reaction: keep the fire it's running from
         // visible on the right (held through the bolt), with a puff at the start.
         const flick = 1 + 0.14 * Math.sin(t * 26);
-        const fire = Math.min(Math.min(1, curE * 8), Math.min(1, (1 - curE) * 5));
+        // Burn during the escape (first half), then gone before Astro loops back in.
+        const fire = Math.min(Math.min(1, curE * 8), Math.max(0, (0.5 - curE) * 8));
         drawProp("🔥", midX + 90 + 3 * Math.sin(t * 18), midY + 2, 46 * fire * flick);
         drawProp("💨", midX, midY + 8, 32 * Math.max(0, 1 - curE * 2.4));
       } else if (action === "hide") {
